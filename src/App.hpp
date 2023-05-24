@@ -14,7 +14,7 @@ class App {
         void init();
 
         const int SCREEN_WIDTH = 300;
-        const int SCREEN_HEIGHT = 720;
+        const int SCREEN_HEIGHT = 600;
 
         SDL_Window* mWindow = NULL;
         SDL_Renderer* mRenderer = NULL;

@@ -1,4 +1,7 @@
 #include <cstdlib>
+#include <ctime>
+#include <random>
+#include <algorithm>
 
 #include "Game.hpp"
 
@@ -80,12 +83,22 @@ static const shape gTetrisPieces[TETRIS_PIECES_TOTAL] = {
 };
 
 Game::Game(int max_width, int max_height) : mMaxWidth(max_width), mMaxHeight(max_height){
-    spawnShape();
+    srand(time(NULL));
 
     mPlayfield = new block*[PLAYFIELD_HEIGHT];
     for(int i = 0; i < PLAYFIELD_HEIGHT; i++){
         mPlayfield[i] = new block[PLAYFIELD_WIDTH];
     }
+
+    mShapeBag = new int[TETRIS_PIECES_TOTAL];
+    for(int i = 0; i < TETRIS_PIECES_TOTAL; i++){
+        mShapeBag[i] = i;
+    }
+
+
+    initPlayfield();
+
+    spawnShape();
 }
 
 Game::~Game(){
@@ -107,23 +120,18 @@ void Game::checkCollisions(char hasRotated){
             updateColliders();
             i = -1;
         }
-        else if(mCurrent.colliders[i].y < 0){
-            mCurrent.y += BLOCK_SIZE;
-            updateColliders();
-            i = -1;
-        }
         else if(mCurrent.colliders[i].y + mCurrent.colliders[i].h > mMaxHeight){
             mCurrent.y -= BLOCK_SIZE;
             addToPlayfield();
             return;
         }
-        for(int i = 0; i < TETRIS_PIECE_SIZE; i++){
-            if(mPlayfield[mCurrent.colliders[i].y / BLOCK_SIZE][mCurrent.colliders[i].x / BLOCK_SIZE].active){
+        else {
+            if(mPlayfield[PLAYFIELD_OFFSET + abs(mCurrent.colliders[i].y) / BLOCK_SIZE][abs(mCurrent.colliders[i].x) / BLOCK_SIZE].active){
                 if(mLeft)
                     mCurrent.x += BLOCK_SIZE;
                 if(mRight)
                     mCurrent.x -= BLOCK_SIZE;
-                if(mDown){
+                if(mDown || mFall){
                     mCurrent.y -= BLOCK_SIZE;
                     addToPlayfield();
                 }
@@ -151,35 +159,37 @@ void Game::updateColliders(){
 }
 
 void Game::updateMovement(){
-    if(mLeft){
+    if(mLeft && !mFall){
         mCurrent.x -= 30;
         updateColliders();
         checkCollisions();
         mLeft = false;
     }
-    if(mRight){
+    if(mRight && !mFall){
         mCurrent.x += 30;
         updateColliders();
         checkCollisions();
         mRight = false;
     }
-    /*if(up){
-        current.y -= 30;
-        updateColliders();
-        checkCollision();
-        up = false;
-    }*/
-    if(mDown){
+    if(mDown || mFall){
         mCurrent.y += 30;
         updateColliders();
         checkCollisions();
         mDown = false;
+        mFall = false;
+    }
+}
+
+void Game::updateTime(Uint32 now){
+    if(now - mLastUpdate > 1000){
+        mFall = true;
+        mLastUpdate = now;
     }
 }
 
 void Game::initPlayfield(){
-    for(int i = 0; i < 24; i++){
-        for(int j = 0; j < 10; j++){
+    for(int i = 0; i < PLAYFIELD_HEIGHT; i++){
+        for(int j = 0; j < PLAYFIELD_WIDTH; j++){
             mPlayfield[i][j].color = {0x00, 0x00, 0x00, 0xFF};
             mPlayfield[i][j].active = false;
         }
@@ -224,18 +234,33 @@ void Game::addToPlayfield(){
     for(int i = 0; i < mCurrent.size; i++){
         for(int j = 0; j < mCurrent.size; j++){
             if(mCurrent.data[i][j] == 1){
-                mPlayfield[mCurrent.y / BLOCK_SIZE + i][mCurrent.x / BLOCK_SIZE + j].active = true;
-                mPlayfield[mCurrent.y / BLOCK_SIZE + i][mCurrent.x / BLOCK_SIZE + j].color = mCurrent.color;
+                mPlayfield[PLAYFIELD_OFFSET + mCurrent.y / BLOCK_SIZE + i][mCurrent.x / BLOCK_SIZE + j].active = true;
+                mPlayfield[PLAYFIELD_OFFSET + mCurrent.y / BLOCK_SIZE + i][mCurrent.x / BLOCK_SIZE + j].color = mCurrent.color;
             }
         }
     }
     spawnShape();
 }
 
+void Game::generatePermutation(){
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::shuffle(mShapeBag, mShapeBag + (int)TETRIS_PIECES_TOTAL, gen);
+}
+
+int Game::getNextShape(){
+    if(mShapeIndex == TETRIS_PIECES_TOTAL){
+        generatePermutation();
+        mShapeIndex = 0;
+    }
+    return mShapeBag[mShapeIndex++];
+}
+
 void Game::drawField(SDL_Renderer* gRenderer){
-    for(int i = 0; i < PLAYFIELD_HEIGHT; i++){
+    for(int i = PLAYFIELD_OFFSET; i < PLAYFIELD_HEIGHT; i++){
         for(int j = 0; j < PLAYFIELD_WIDTH; j++){
-            SDL_Rect rect = {j * BLOCK_SIZE, i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE};
+            SDL_Rect rect = {j * BLOCK_SIZE, (i - PLAYFIELD_OFFSET) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE};
             SDL_SetRenderDrawColor(gRenderer, mPlayfield[i][j].color.r, mPlayfield[i][j].color.g, mPlayfield[i][j].color.b, mPlayfield[i][j].color.a);
             SDL_RenderFillRect(gRenderer, &rect);
             SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -247,7 +272,7 @@ void Game::drawField(SDL_Renderer* gRenderer){
 void Game::drawPiece(SDL_Renderer* gRenderer){
     for(int i = 0; i < mCurrent.size; i++){
         for(int j = 0; j < mCurrent.size; j++){
-            if(mCurrent.data[i][j] == 1){
+            if(mCurrent.data[i][j] == 1 && mCurrent.y + i * BLOCK_SIZE >= 0){
                 SDL_Rect rect = {mCurrent.x + j * BLOCK_SIZE, mCurrent.y + i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE};
                 SDL_SetRenderDrawColor(gRenderer, mCurrent.color.r, mCurrent.color.g, mCurrent.color.b, mCurrent.color.a);
                 SDL_RenderFillRect(gRenderer, &rect);
@@ -259,7 +284,10 @@ void Game::drawPiece(SDL_Renderer* gRenderer){
 }
 
 void Game::spawnShape(){
-    mCurrent = gTetrisPieces[rand() % TETRIS_PIECES_TOTAL];
-    mCurrent.x = 3 * BLOCK_SIZE;
-    mCurrent.y = 0;
+    mCurrent = gTetrisPieces[getNextShape()];
+
+    int x = (mMaxWidth - mCurrent.size * BLOCK_SIZE) / 2;
+    mCurrent.x = x - x % BLOCK_SIZE;
+    mCurrent.y = -60;
+    updateColliders();
 }

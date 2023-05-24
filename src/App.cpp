@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "App.hpp"
 
 App::App() : game(SCREEN_WIDTH, SCREEN_HEIGHT){
@@ -17,9 +19,6 @@ App::~App(){
 void App::run(){
     SDL_Event e;
 
-    game.updateColliders();
-    game.initPlayfield();
-
     while(!mQuit){
         while(SDL_PollEvent(&e)){
             if(e.type == SDL_QUIT){
@@ -36,7 +35,7 @@ void App::run(){
                         game.rotateShape(false);
                         break;
                     case SDLK_LEFT:
-                        game.mLeft   = true;
+                        game.mLeft = true;
                         break;
                     case SDLK_RIGHT:
                         game.mRight = true;
@@ -48,6 +47,7 @@ void App::run(){
             }
         }
 
+        game.updateTime(SDL_GetTicks());
         game.updateMovement();
 
         SDL_SetRenderDrawColor(mRenderer, 0x00, 0x00, 0x00, 0xFF);

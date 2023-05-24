@@ -39,7 +39,7 @@ $(BIN): $(OBJ)
 
 # $< = first dependency
 # % for each cpp file in SRC, create a corresponding .o file in OBJ
-$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp
+$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp $(wildcard $(SRC_DIR)%.hpp)
 	$(CC) $(CFLAGS) $(INCLUDE_PATHS) -c -o $@ $<
 
 # Clean
