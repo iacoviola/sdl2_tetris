@@ -92,3 +92,7 @@ int LTexture::getWidth(){
 int LTexture::getHeight(){
     return mHeight;
 }
+
+void LTexture::setFontSize(int size){
+    TTF_SetFontSize(font, size);
+}

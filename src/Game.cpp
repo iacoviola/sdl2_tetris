@@ -5,9 +5,9 @@
 
 #include "Game.hpp"
 
-static const char TETRIS_PIECES_TOTAL = 7;
-static const char TETRIS_PIECE_SIZE = 4;
-static const char BLOCK_SIZE = 30;
+static const int TETRIS_PIECES_TOTAL = 7;
+static const int TETRIS_PIECE_SIZE = 4;
+static const int BLOCK_SIZE = 30;
 
 static const shape gTetrisPieces[TETRIS_PIECES_TOTAL] = {
     {
@@ -98,7 +98,7 @@ Game::Game(int max_width, int max_height) : mMaxWidth(max_width), mMaxHeight(max
 
     initPlayfield();
 
-    spawnShape();
+    //spawnShape();
 }
 
 Game::~Game(){
@@ -292,7 +292,6 @@ void Game::checkGameOver(){
 }
 
 void Game::resetGame(){
-    SDL_Delay(1000);
     mShapeIndex = 7;
     mLastUpdate = 0;
     mGameOver = false;

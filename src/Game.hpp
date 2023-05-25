@@ -59,6 +59,7 @@ class Game {
         bool mLeft = false, mRight = false, mDown = false;
         bool mFall = false;
         bool mGameOver = false;
+        bool mStartScreen = true;
 
         int mShapeIndex = 7;
 

@@ -25,7 +25,8 @@ class App {
 
         bool mQuit = false;
         LTexture* mScoreTexture;
-        TTF_Font* mFont;
+        LTexture* mGameOverTexture;
+        TTF_Font* mFontSmall, *mFontLarge;
 };
 
 #endif // APP_HPP
