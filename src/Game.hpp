@@ -37,6 +37,8 @@ class Game {
         void checkRows();
         void clearRow(int row);
         void shiftDown(int row);
+        void checkGameOver();
+        void resetGame();
 
         void generatePermutation();
         int getNextShape();
@@ -44,9 +46,9 @@ class Game {
         void drawField(SDL_Renderer* renderer);
         void drawPiece(SDL_Renderer* renderer);
 
-        const char PLAYFIELD_HEIGHT = 24;
-        const char PLAYFIELD_WIDTH = 10;
-        const char PLAYFIELD_OFFSET = 4;
+        const int PLAYFIELD_HEIGHT = 24;
+        const int PLAYFIELD_WIDTH = 10;
+        const int PLAYFIELD_OFFSET = 4;
 
         block** mPlayfield;
         
@@ -56,6 +58,7 @@ class Game {
 
         bool mLeft = false, mRight = false, mDown = false;
         bool mFall = false;
+        bool mGameOver = false;
 
         int mShapeIndex = 7;
 

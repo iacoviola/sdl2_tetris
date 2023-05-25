@@ -240,7 +240,9 @@ void Game::addToPlayfield(){
         }
     }
     checkRows();
-    spawnShape();
+    checkGameOver();
+    if(!mGameOver)
+        spawnShape();
 }
 
 void Game::checkRows(){
@@ -278,6 +280,25 @@ void Game::shiftDown(int row){
         }
     }
     mLastUpdate = SDL_GetTicks();
+}
+
+void Game::checkGameOver(){
+    for(int i = 0; i < PLAYFIELD_WIDTH; i++){
+        if(mPlayfield[PLAYFIELD_OFFSET - 1][i].active){
+            mGameOver = true;
+            break;
+        }
+    }
+}
+
+void Game::resetGame(){
+    SDL_Delay(1000);
+    mShapeIndex = 7;
+    mLastUpdate = 0;
+    mGameOver = false;
+    mScore = 0;
+    initPlayfield();
+    spawnShape();
 }
 
 void Game::generatePermutation(){

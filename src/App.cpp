@@ -61,6 +61,10 @@ void App::run(){
         game.drawField(this->mRenderer);
         game.drawPiece(this->mRenderer);
 
+        if(game.mGameOver){
+            game.resetGame();
+        }
+
         std::stringstream scoreText;
         scoreText << "Score: " << game.mScore;
 
