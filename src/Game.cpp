@@ -239,7 +239,45 @@ void Game::addToPlayfield(){
             }
         }
     }
+    checkRows();
     spawnShape();
+}
+
+void Game::checkRows(){
+    bool isFull = true;
+    for(int i = PLAYFIELD_HEIGHT - 1; i > 0; i--){
+        for(int j = 0; j < PLAYFIELD_WIDTH; j++){
+            if(!mPlayfield[i][j].active) break;
+            if(j == PLAYFIELD_WIDTH - 1){
+                isFull = true;
+                clearRow(i);
+                shiftDown(i);
+                mScore += 100;
+                i++;
+            }
+        }
+    }
+    if(isFull){
+        SDL_Delay(250);
+        mLastUpdate = SDL_GetTicks();
+    }
+}
+
+void Game::clearRow(int row){
+    for(int i = 0; i < PLAYFIELD_WIDTH; i++){
+        mPlayfield[row][i].active = false;
+        mPlayfield[row][i].color = {0x00, 0x00, 0x00, 0xFF};
+    }
+}
+
+void Game::shiftDown(int row){
+    for(int i = row - 1; i > 0; i--){
+        for(int j = 0; j < PLAYFIELD_WIDTH; j++){
+            mPlayfield[i + 1][j].active = mPlayfield[i][j].active;
+            mPlayfield[i + 1][j].color = mPlayfield[i][j].color;
+        }
+    }
+    mLastUpdate = SDL_GetTicks();
 }
 
 void Game::generatePermutation(){
@@ -261,9 +299,15 @@ void Game::drawField(SDL_Renderer* gRenderer){
     for(int i = PLAYFIELD_OFFSET; i < PLAYFIELD_HEIGHT; i++){
         for(int j = 0; j < PLAYFIELD_WIDTH; j++){
             SDL_Rect rect = {j * BLOCK_SIZE, (i - PLAYFIELD_OFFSET) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE};
-            SDL_SetRenderDrawColor(gRenderer, mPlayfield[i][j].color.r, mPlayfield[i][j].color.g, mPlayfield[i][j].color.b, mPlayfield[i][j].color.a);
-            SDL_RenderFillRect(gRenderer, &rect);
-            SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+            if(mPlayfield[i][j].active){
+                SDL_SetRenderDrawColor(gRenderer, mPlayfield[i][j].color.r, mPlayfield[i][j].color.g, mPlayfield[i][j].color.b, mPlayfield[i][j].color.a);
+                SDL_RenderFillRect(gRenderer, &rect);
+                SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+            } else {
+                SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0x0F);
+                SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
+            }
+            
             SDL_RenderDrawRect(gRenderer, &rect);
         }
     }

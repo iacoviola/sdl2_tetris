@@ -20,7 +20,7 @@ CC = g++
 CFLAGS = -Wall -std=c++17 -g
 
 # Libraries
-LIBS = -lSDL2
+LIBS = -lSDL2 -lSDL2_ttf
 
 # Includes
 INCLUDE_PATHS =

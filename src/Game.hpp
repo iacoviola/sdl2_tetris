@@ -34,6 +34,9 @@ class Game {
         shape transposeMatrix(shape &s);
         shape reverseColumns(shape &s);
         void addToPlayfield();
+        void checkRows();
+        void clearRow(int row);
+        void shiftDown(int row);
 
         void generatePermutation();
         int getNextShape();
@@ -59,6 +62,8 @@ class Game {
         int mMaxWidth, mMaxHeight;
 
         int* mShapeBag;
+
+        int mScore = 0;
 
     friend class App;
 };

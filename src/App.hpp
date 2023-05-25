@@ -2,7 +2,9 @@
 #define APP_HPP
 
 #include <SDL2/SDL.h>
+
 #include "Game.hpp"
+#include "LTexture.hpp"
 
 class App {
     public:
@@ -22,6 +24,8 @@ class App {
         Game game;
 
         bool mQuit = false;
+        LTexture* mScoreTexture;
+        TTF_Font* mFont;
 };
 
 #endif // APP_HPP

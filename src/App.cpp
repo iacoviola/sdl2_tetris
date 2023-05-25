@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <sstream>
 
 #include "App.hpp"
 
@@ -13,6 +14,10 @@ App::~App(){
     mWindow = NULL;
     mRenderer = NULL;
 
+    TTF_CloseFont(mFont);
+    mFont = NULL;
+
+    TTF_Quit();
     SDL_Quit();
 }
 
@@ -52,9 +57,15 @@ void App::run(){
 
         SDL_SetRenderDrawColor(mRenderer, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(mRenderer);
-        
+
         game.drawField(this->mRenderer);
         game.drawPiece(this->mRenderer);
+
+        std::stringstream scoreText;
+        scoreText << "Score: " << game.mScore;
+
+        if(mScoreTexture->loadFromRenderedText(scoreText.str(), {0xFF, 0xFF, 0xFF, 0xFF}))
+            mScoreTexture->render(10, 10);
         
         SDL_RenderPresent(mRenderer);
     }
@@ -76,6 +87,15 @@ void App::init(){
 
     if(mRenderer == NULL)
         throw std::runtime_error(SDL_GetError());
+
+    if (TTF_Init() == -1)
+        throw std::runtime_error(TTF_GetError());
+
+    mFont = TTF_OpenFont("../res/Roboto-Regular.ttf", 15);
+    if(mFont == NULL)
+        throw std::runtime_error(TTF_GetError());
+
+    mScoreTexture = new LTexture(mRenderer, mFont);
 
     SDL_SetRenderDrawColor(mRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 }

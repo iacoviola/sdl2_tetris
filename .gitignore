@@ -2,3 +2,4 @@
 obj/
 build/
 .DS_STORE
+val.log
