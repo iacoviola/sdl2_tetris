@@ -20,7 +20,7 @@ CC = g++
 CFLAGS = -Wall -std=c++17 -g
 
 # Libraries
-LIBS = -lSDL2 -lSDL2_ttf
+LIBS = -lSDL2 -lSDL2_ttf -lSDL2_image
 
 # Includes
 INCLUDE_PATHS =
@@ -34,10 +34,10 @@ ifeq ($(UNAME), Darwin)
 endif
 
 ifeq ($(OS),Windows_NT)
-	#CFLAGS += -Wl,-subsystem,windows
-	INCLUDE_PATHS += -IC:\SDL2\SDL2-2.26.5\x86_64-w64-mingw32\include -IC:\SDL2\SDL2_ttf-2.20.2\x86_64-w64-mingw32\include
-	LIBRARY_PATHS += -LC:\SDL2\SDL2-2.26.5\x86_64-w64-mingw32\lib -LC:\SDL2\SDL2_ttf-2.20.2\x86_64-w64-mingw32\lib
-	LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf
+	CFLAGS += -Wl,-subsystem,windows
+	INCLUDE_PATHS += -IC:\SDL2\SDL2-2.26.5\x86_64-w64-mingw32\include -IC:\SDL2\SDL2_ttf-2.20.2\x86_64-w64-mingw32\include -IC:\SDL2\SDL2_image-2.6.3\x86_64-w64-mingw32\include
+	LIBRARY_PATHS += -LC:\SDL2\SDL2-2.26.5\x86_64-w64-mingw32\lib -LC:\SDL2\SDL2_ttf-2.20.2\x86_64-w64-mingw32\lib -LC:\SDL2\SDL2_image-2.6.3\x86_64-w64-mingw32\lib
+	LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image
 endif
 
 # Build

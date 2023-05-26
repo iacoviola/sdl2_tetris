@@ -57,7 +57,7 @@ void App::init(){
     if(!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
         printf("Warning: Linear texture filtering not enabled!");
 
-    mWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    mWindow = SDL_CreateWindow("SDL2 Tetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 
     if(mWindow == NULL)
         throw std::runtime_error(SDL_GetError());
@@ -66,6 +66,16 @@ void App::init(){
 
     if(mRenderer == NULL)
         throw std::runtime_error(SDL_GetError());
+
+    if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG)
+        throw std::runtime_error(IMG_GetError());
+
+    SDL_Surface* loadedSurface = IMG_Load("../res/icon.png");
+    if(loadedSurface == NULL){
+        throw std::runtime_error(IMG_GetError());
+    }
+
+    SDL_SetWindowIcon(mWindow, loadedSurface);
 
     #if defined _WIN32 || defined linux
     SDL_DisplayMode currentDisplayMode;

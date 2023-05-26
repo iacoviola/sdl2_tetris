@@ -2,6 +2,7 @@
 #define APP_HPP
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include "Game.hpp"
 #include "LTexture.hpp"
