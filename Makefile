@@ -25,9 +25,19 @@ LIBS = -lSDL2 -lSDL2_ttf
 # Includes
 INCLUDE_PATHS =
 
+# Library paths
+LIBRARY_PATHS =
+
 UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
 	INCLUDE_PATHS += -I/opt/homebrew/include/
+endif
+
+ifeq ($(OS),Windows_NT)
+	#CFLAGS += -Wl,-subsystem,windows
+	INCLUDE_PATHS += -IC:\SDL2\SDL2-2.26.5\x86_64-w64-mingw32\include -IC:\SDL2\SDL2_ttf-2.20.2\x86_64-w64-mingw32\include
+	LIBRARY_PATHS += -LC:\SDL2\SDL2-2.26.5\x86_64-w64-mingw32\lib -LC:\SDL2\SDL2_ttf-2.20.2\x86_64-w64-mingw32\lib
+	LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf
 endif
 
 # Build
@@ -35,7 +45,7 @@ all: $(BIN)
 
 # $@ = target (BIN), $^ = all dependencies (OBJ)
 $(BIN): $(OBJ)
-	$(CC) $(CFLAGS) $(INCLUDE_PATHS) -o $@ $^ $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDE_PATHS) $(LIBRARY_PATHS) -o $@ $^ $(LIBS)
 
 # $< = first dependency
 # % for each cpp file in SRC, create a corresponding .o file in OBJ

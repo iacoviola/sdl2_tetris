@@ -14,6 +14,9 @@ class App {
     private:
 
         void init();
+        void handleEvents();
+        void update();
+        void render();
 
         const int SCREEN_WIDTH = 300;
         const int SCREEN_HEIGHT = 600;
