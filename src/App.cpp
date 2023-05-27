@@ -169,6 +169,10 @@ void App::render(){
     int scoreX = 10;
     int scoreY = 10;
 
+    if(game.mGameOver){
+        darkenBackground();
+    }
+
     if(game.mGameOver || game.mStartScreen){
         if(game.mGameOver){
             mGameOverTexture->loadFromRenderedText("Game Over", {0xFF, 0xFF, 0xFF, 0xFF});
@@ -193,4 +197,21 @@ void App::render(){
         mScoreTexture->render(scoreX, scoreY);
     
     SDL_RenderPresent(mRenderer);
+}
+
+void App::darkenBackground(){
+    SDL_Surface* back = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0);
+
+    SDL_FillRect(back, NULL, SDL_MapRGB(back->format, 0, 0, 0));
+
+    SDL_Texture* backTexture = SDL_CreateTextureFromSurface(mRenderer, back);
+
+    SDL_SetTextureBlendMode(backTexture, SDL_BLENDMODE_BLEND);
+
+    SDL_SetTextureAlphaMod(backTexture, 140);
+
+    SDL_RenderCopy(mRenderer, backTexture, NULL, NULL);
+
+    SDL_FreeSurface(back);
+
 }

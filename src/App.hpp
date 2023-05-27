@@ -18,6 +18,7 @@ class App {
         void handleEvents();
         void update();
         void render();
+        void darkenBackground();
 
         const int SCREEN_WIDTH = 300;
         const int SCREEN_HEIGHT = 600;

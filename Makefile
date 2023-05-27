@@ -45,7 +45,7 @@ all: $(BIN)
 
 # $@ = target (BIN), $^ = all dependencies (OBJ)
 $(BIN): $(OBJ)
-	$(CC) $(CFLAGS) $(INCLUDE_PATHS) $(LIBRARY_PATHS) -o $@ $^ $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDE_PATHS) $(LIBRARY_PATHS) -o $@ $^ res/icon.res $(LIBS)
 
 # $< = first dependency
 # % for each cpp file in SRC, create a corresponding .o file in OBJ
