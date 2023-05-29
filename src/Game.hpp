@@ -24,8 +24,9 @@ class Game {
         ~Game();
     private:
 
-        void checkCollisions(char hasRotated = 0);
-        void updateColliders();
+        void checkCollisions(int hasRotated = 0);
+        bool checkGhostCollision(shape &s, int hasRotated = 0);
+        void updateColliders(shape &s);
         void updateMovement();
         void updateTime(Uint32 now);
         void spawnShape();
@@ -39,6 +40,7 @@ class Game {
         void shiftDown(int row);
         void checkGameOver();
         void resetGame();
+        void drawGhostPiece(SDL_Renderer* renderer);
 
         void generatePermutation();
         int getNextShape();

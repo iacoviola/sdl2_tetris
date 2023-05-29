@@ -163,8 +163,10 @@ void App::render(){
 
     game.drawField(this->mRenderer);
     
-    if(!game.mGameOver && !game.mStartScreen)
+    if(!game.mGameOver && !game.mStartScreen){
         game.drawPiece(this->mRenderer);
+        game.drawGhostPiece(this->mRenderer);
+    }
 
     int scoreX = 10;
     int scoreY = 10;

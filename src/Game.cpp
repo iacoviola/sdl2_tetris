@@ -108,16 +108,16 @@ Game::~Game(){
     delete[] mPlayfield;
 }
 
-void Game::checkCollisions(char hasRotated){
+void Game::checkCollisions(int hasRotated){
     for(int i = 0; i < TETRIS_PIECE_SIZE; i++){
         if(mCurrent.colliders[i].x < 0){
             mCurrent.x += BLOCK_SIZE;
-            updateColliders();
+            updateColliders(mCurrent);
             i = -1;
         }
         else if(mCurrent.colliders[i].x + mCurrent.colliders[i].w > mMaxWidth){
             mCurrent.x -= BLOCK_SIZE;
-            updateColliders();
+            updateColliders(mCurrent);
             i = -1;
         }
         else if(mCurrent.colliders[i].y + mCurrent.colliders[i].h > mMaxHeight){
@@ -146,12 +146,28 @@ void Game::checkCollisions(char hasRotated){
     }
 }
 
-void Game::updateColliders(){
+bool Game::checkGhostCollision(shape &s, int hasRotated){
+    for(int i = 0; i < TETRIS_PIECE_SIZE; i++){
+        if(s.colliders[i].y + s.colliders[i].h > mMaxHeight){
+            s.y -= BLOCK_SIZE;
+            return true;
+        }
+        else {
+            if(mPlayfield[PLAYFIELD_OFFSET + abs(s.colliders[i].y) / BLOCK_SIZE][abs(s.colliders[i].x) / BLOCK_SIZE].active){
+                s.y -= BLOCK_SIZE;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void Game::updateColliders(shape &s){
     int k = 0;
-    for(int i = 0; i < mCurrent.size; i++){
-        for(int j = 0; j < mCurrent.size; j++){
-            if(mCurrent.data[i][j] == 1){
-                mCurrent.colliders[k++] = {mCurrent.x + j * BLOCK_SIZE, mCurrent.y + i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE};
+    for(int i = 0; i < s.size; i++){
+        for(int j = 0; j < s.size; j++){
+            if(s.data[i][j] == 1){
+                s.colliders[k++] = {s.x + j * BLOCK_SIZE, s.y + i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE};
                 if(k == TETRIS_PIECE_SIZE) return;
             }
         }
@@ -161,19 +177,19 @@ void Game::updateColliders(){
 void Game::updateMovement(){
     if(mLeft && !mFall){
         mCurrent.x -= 30;
-        updateColliders();
+        updateColliders(mCurrent);
         checkCollisions();
         mLeft = false;
     }
     if(mRight && !mFall){
         mCurrent.x += 30;
-        updateColliders();
+        updateColliders(mCurrent);
         checkCollisions();
         mRight = false;
     }
     if(mDown || mFall){
         mCurrent.y += 30;
-        updateColliders();
+        updateColliders(mCurrent);
         checkCollisions();
         mDown = false;
         mFall = false;
@@ -204,7 +220,7 @@ void Game::rotateShape(bool clockwise){
         mCurrent = reverseColumns(mCurrent);
         mCurrent = transposeMatrix(mCurrent);
     }
-    updateColliders();
+    updateColliders(mCurrent);
     checkCollisions(true);
 }
 
@@ -353,5 +369,25 @@ void Game::spawnShape(){
     int x = (mMaxWidth - mCurrent.size * BLOCK_SIZE) / 2;
     mCurrent.x = x - x % BLOCK_SIZE;
     mCurrent.y = -60;
-    updateColliders();
+    updateColliders(mCurrent);
+}
+
+void Game::drawGhostPiece(SDL_Renderer* renderer){
+    shape ghost = mCurrent;
+    bool collided = false;
+
+    while(!collided){
+        ghost.y += BLOCK_SIZE;
+        updateColliders(ghost);
+        collided = checkGhostCollision(ghost);
+    }
+    for(int i = 0; i < ghost.size; i++){
+        for(int j = 0; j < ghost.size; j++){
+            if(ghost.data[i][j] == 1 && ghost.y + i * BLOCK_SIZE >= 0){
+                SDL_Rect rect = {ghost.x + j * BLOCK_SIZE, ghost.y + i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE};
+                SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                SDL_RenderDrawRect(renderer, &rect);
+            }
+        }
+    }
 }
