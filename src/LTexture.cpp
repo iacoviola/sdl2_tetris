@@ -11,6 +11,12 @@
 
 #include "LTexture.hpp"
 
+LTexture::LTexture(SDL_Renderer* renderer) : renderer(renderer){
+    mTexture = NULL;
+    mWidth = 0;
+    mHeight = 0;
+}
+
 LTexture::LTexture(SDL_Renderer* renderer, TTF_Font* font) : renderer(renderer), font(font){
     mTexture = NULL;
     mWidth = 0;
@@ -19,6 +25,37 @@ LTexture::LTexture(SDL_Renderer* renderer, TTF_Font* font) : renderer(renderer),
 
 LTexture::~LTexture(){
     free();
+}
+
+bool LTexture::loadFromFile(std::string path){
+    // Remove preexisting texture
+    free();
+
+    SDL_Surface* loadedSurface = NULL;
+
+    loadedSurface = IMG_Load(path.c_str());
+
+    if (loadedSurface == NULL)
+    {
+        printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
+        return false;
+    }
+
+    // Create texture from surface pixels
+    mTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+    if (mTexture == NULL)
+    {
+        printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
+        return false;
+    }
+
+    // Get image dimensions
+    mWidth = loadedSurface->w;
+    mHeight = loadedSurface->h;
+
+    SDL_FreeSurface(loadedSurface);
+
+    return true;
 }
 
 bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor){
@@ -61,14 +98,18 @@ void LTexture::free(){
     }
 }
 
-void LTexture::render(int x, int y, SDL_Rect* clip){
-    SDL_Rect renderQuad = {x, y, mWidth, mHeight};
+void LTexture::render(int x, int y, SDL_Rect* clip, SDL_Rect* stretch){
+    SDL_Rect renderQuad;
+    if(stretch == NULL)
+        renderQuad = {x, y, mWidth, mHeight};
+    else
+        renderQuad = {x, y, stretch->w, stretch->h};
 
     //Set clip rendering dimensions
-    if(clip != NULL){
+    /*if(clip != NULL){
         renderQuad.w = clip->w;
 		renderQuad.h = clip->h;
-    }
+    }*/
 
     SDL_RenderCopy(renderer, mTexture, clip, &renderQuad);
 }

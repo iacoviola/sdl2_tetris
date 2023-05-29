@@ -28,8 +28,9 @@ class Game {
         bool checkGhostCollision(shape &s, int hasRotated = 0);
         void updateColliders(shape &s);
         void updateMovement();
-        void updateTime(Uint32 now);
+        void updateGravity();
         void spawnShape();
+        void reloadShape(int previousSize, int previousX, int previousY);
         void initPlayfield();
         void rotateShape(bool clockwise);
         shape transposeMatrix(shape &s);
@@ -40,17 +41,24 @@ class Game {
         void shiftDown(int row);
         void checkGameOver();
         void resetGame();
-        void drawGhostPiece(SDL_Renderer* renderer);
 
         void generatePermutation();
         int getNextShape();
 
         void drawField(SDL_Renderer* renderer);
         void drawPiece(SDL_Renderer* renderer);
+        void drawGhostPiece(SDL_Renderer* renderer);
 
         const int PLAYFIELD_HEIGHT = 24;
         const int PLAYFIELD_WIDTH = 10;
         const int PLAYFIELD_OFFSET = 4;
+
+        int mBlockSize = 30;
+
+        int mStartingX;
+        int mEndingX;
+        int mStartingY;
+        int mEndingY;
 
         block** mPlayfield;
         
@@ -59,7 +67,7 @@ class Game {
         Uint32 mLastUpdate = 0;
 
         bool mLeft = false, mRight = false, mDown = false;
-        bool mFall = false;
+        bool mDrop = false;
         bool mGameOver = false;
         bool mStartScreen = true;
 
@@ -70,6 +78,10 @@ class Game {
         int* mShapeBag;
 
         int mScore = 0;
+        int mShapesPlaced = 0;
+
+        float mGravity = 1.0f / 64.0f; //0.015625f;
+        float mDropCounter = 0.0f;
 
     friend class App;
 };

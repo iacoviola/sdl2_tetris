@@ -19,9 +19,15 @@ class App {
         void update();
         void render();
         void darkenBackground();
+        void renderBackground();
 
-        const int SCREEN_WIDTH = 300;
-        const int SCREEN_HEIGHT = 600;
+        int SCREEN_WIDTH = 300;
+        int SCREEN_HEIGHT = 600;
+
+        int screenWbeforeFS;
+        int screenHbeforeFS;
+        
+        bool isBackgroundLoaded = false;
 
         SDL_Window* mWindow = NULL;
         SDL_Renderer* mRenderer = NULL;
@@ -29,8 +35,9 @@ class App {
         Game game;
 
         bool mQuit = false;
-        LTexture* mScoreTexture;
-        LTexture* mGameOverTexture;
+        LTexture* mSmallTexture;
+        LTexture* mTitleTexture;
+        LTexture* mBackgroundTexture;
         TTF_Font* mFontSmall, *mFontLarge;
 };
 

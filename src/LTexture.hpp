@@ -11,16 +11,20 @@
 #include <string>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
 
 //Texture wrapper class
 class LTexture
 {
     public:
         //Initializes variables
+        LTexture(SDL_Renderer* renderer);
         LTexture(SDL_Renderer* renderer, TTF_Font* font);
 
         //Deallocates memory
         ~LTexture();
+
+        bool loadFromFile(std::string path);
 
         //Loads image at specified path
         bool loadFromRenderedText(std::string textureText, SDL_Color textColor);
@@ -29,7 +33,7 @@ class LTexture
         void free();
 
         //Renders texture at given point
-        void render(int x, int y, SDL_Rect* clip = NULL);
+        void render(int x, int y, SDL_Rect* clip = NULL, SDL_Rect* stretch = NULL);
 	
         //set color modulation
         void setColor(Uint8 red, Uint8 green, Uint8 blue);
