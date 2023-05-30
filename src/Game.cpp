@@ -136,7 +136,7 @@ void Game::checkCollisions(int hasRotated){
                 }
                 if(hasRotated == 1){
                     rotateShape(false);
-                } else if(hasRotated == -1){
+                } else if(hasRotated == -1){ // else if might be redundant
                     rotateShape(true);
                 }
                 return;
@@ -145,15 +145,15 @@ void Game::checkCollisions(int hasRotated){
     }
 }
 
-bool Game::checkGhostCollision(shape &s, int hasRotated){
+bool Game::checkGhostCollision(){
     for(int i = 0; i < TETRIS_PIECE_SIZE; i++){
-        if(s.colliders[i].y + s.colliders[i].h > mEndingY){
-            s.y -= mBlockSize;
+        if(mGhost.colliders[i].y + mGhost.colliders[i].h > mEndingY){
+            mGhost.y -= mBlockSize;
             return true;
         }
         else {
-            if(mPlayfield[PLAYFIELD_OFFSET + abs(s.colliders[i].y - mStartingY) / mBlockSize][abs(s.colliders[i].x - mStartingX) / mBlockSize].active){
-                s.y -= mBlockSize;
+            if(mPlayfield[PLAYFIELD_OFFSET + abs(mGhost.colliders[i].y - mStartingY) / mBlockSize][abs(mGhost.colliders[i].x - mStartingX) / mBlockSize].active){
+                mGhost.y -= mBlockSize;
                 return true;
             }
         }
@@ -222,7 +222,7 @@ void Game::rotateShape(bool clockwise){
         mCurrent = transposeMatrix(mCurrent);
     }
     updateColliders(mCurrent);
-    checkCollisions(true);
+    checkCollisions(clockwise ? 1 : -1);
 }
 
 shape Game::transposeMatrix(shape &s){
@@ -280,7 +280,6 @@ void Game::checkRows(){
     }
     if(isFull){
         SDL_Delay(250);
-        mLastUpdate = SDL_GetTicks();
     }
 }
 
@@ -298,7 +297,6 @@ void Game::shiftDown(int row){
             mPlayfield[i + 1][j].color = mPlayfield[i][j].color;
         }
     }
-    mLastUpdate = SDL_GetTicks();
 }
 
 void Game::checkGameOver(){
@@ -312,7 +310,6 @@ void Game::checkGameOver(){
 
 void Game::resetGame(){
     mShapeIndex = 7;
-    mLastUpdate = 0;
     mGameOver = false;
     mScore = 0;
     mShapesPlaced = 0;
@@ -377,8 +374,7 @@ void Game::dropPiece(){
 void Game::spawnShape(){
     mCurrent = gTetrisPieces[getNextShape()];
 
-    int x = mStartingX + 3 * mBlockSize; // (mEndingX - mStartingX - mCurrent.size * BLOCK_SIZE) / 2 + mStartingX;
-    mCurrent.x = x; // - x % BLOCK_SIZE;
+    mCurrent.x = mStartingX + 3 * mBlockSize;
     mCurrent.y = -2 * mBlockSize + mStartingY;
     updateColliders(mCurrent);
 }
@@ -396,7 +392,7 @@ void Game::drawGhostPiece(SDL_Renderer* renderer){
     while(!collided){
         mGhost.y += mBlockSize;
         updateColliders(mGhost);
-        collided = checkGhostCollision(mGhost);
+        collided = checkGhostCollision();
     }
     for(int i = 0; i < mGhost.size; i++){
         for(int j = 0; j < mGhost.size; j++){

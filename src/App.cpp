@@ -3,7 +3,7 @@
 
 #include "App.hpp"
 
-App::App() : game(SCREEN_WIDTH, SCREEN_HEIGHT){
+App::App() : game(mWindowWidth, mWindowHeight){
     init();
 }
 
@@ -66,12 +66,12 @@ void App::init(){
         puts("Warning: Linear texture filtering not enabled!");
     }
 
-    mWindow = SDL_CreateWindow("SDL2 Tetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    mWindow = SDL_CreateWindow("SDL2 Tetris", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mWindowWidth, mWindowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     if(mWindow == NULL){
         throw std::runtime_error(SDL_GetError());
     }
 
-    SDL_SetWindowMinimumSize(mWindow, SCREEN_WIDTH, SCREEN_HEIGHT);
+    SDL_SetWindowMinimumSize(mWindow, mWindowWidth, mWindowHeight);
 
     mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
     if(mRenderer == NULL){
@@ -82,23 +82,25 @@ void App::init(){
         throw std::runtime_error(IMG_GetError());
     }
 
-    SDL_Surface* loadedSurface = IMG_Load("../../res/icon.png");
+    SDL_Surface* loadedSurface = IMG_Load("../../res/icon/icon.png");
     if(loadedSurface == NULL){
         throw std::runtime_error(IMG_GetError());
     }
     
     SDL_SetWindowIcon(mWindow, loadedSurface);
 
+    SDL_FreeSurface(loadedSurface);
+
     if(TTF_Init() == -1){
         throw std::runtime_error(TTF_GetError());
     }
 
-    mFontSmall = TTF_OpenFont("../../res/Roboto-Regular.ttf", 15);
+    mFontSmall = TTF_OpenFont("../../res/fonts/Roboto-Regular.ttf", 15);
     if(mFontSmall == NULL){
         throw std::runtime_error(TTF_GetError());
     }
 
-    mFontLarge = TTF_OpenFont("../../res/Roboto-Regular.ttf", 45);
+    mFontLarge = TTF_OpenFont("../../res/fonts/Roboto-Regular.ttf", 45);
     if(mFontLarge == NULL){
         throw std::runtime_error(TTF_GetError());
     }
@@ -126,25 +128,25 @@ void App::handleEvents(){
         } else if(e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
             SDL_SetWindowSize(mWindow, e.window.data1, e.window.data2);
 
-            SDL_GetWindowSize(mWindow, &SCREEN_WIDTH, &SCREEN_HEIGHT);
+            SDL_GetWindowSize(mWindow, &mWindowWidth, &mWindowHeight);
 
-            game.mMaxWidth = SCREEN_WIDTH;
-            game.mMaxHeight = SCREEN_HEIGHT;
+            game.mMaxWidth = mWindowWidth;
+            game.mMaxHeight = mWindowHeight;
 
             int prevBlockSize = game.mBlockSize;
             int prevStartingX = game.mStartingX;
             int prevStartingY = game.mStartingY;
             
-            if(SCREEN_WIDTH > SCREEN_HEIGHT / 2){
-                game.mBlockSize = SCREEN_HEIGHT / (game.PLAYFIELD_HEIGHT - game.PLAYFIELD_OFFSET);
+            if(mWindowWidth > mWindowHeight / 2){
+                game.mBlockSize = mWindowHeight / (game.PLAYFIELD_HEIGHT - game.PLAYFIELD_OFFSET);
             } else {
-                game.mBlockSize = SCREEN_WIDTH / game.PLAYFIELD_WIDTH;
+                game.mBlockSize = mWindowWidth / game.PLAYFIELD_WIDTH;
             }
 
-            game.mStartingX = (SCREEN_WIDTH - game.mBlockSize * game.PLAYFIELD_WIDTH) / 2;
+            game.mStartingX = (mWindowWidth - game.mBlockSize * game.PLAYFIELD_WIDTH) / 2;
             game.mEndingX = game.mStartingX + game.mBlockSize * game.PLAYFIELD_WIDTH;
 
-            game.mStartingY = (SCREEN_HEIGHT - game.mBlockSize * (game.PLAYFIELD_HEIGHT - game.PLAYFIELD_OFFSET)) / 2;
+            game.mStartingY = (mWindowHeight - game.mBlockSize * (game.PLAYFIELD_HEIGHT - game.PLAYFIELD_OFFSET)) / 2;
             game.mEndingY = game.mStartingY + game.mBlockSize * (game.PLAYFIELD_HEIGHT - game.PLAYFIELD_OFFSET);
             
             game.reloadShape(prevBlockSize, prevStartingX, prevStartingY);
@@ -175,13 +177,12 @@ void App::handleEvents(){
                         game.mDown = true;
                     break;
                 case SDLK_RETURN:
-                    if(game.mGameOver){
-                        game.resetGame();
-                        mSmallTexture->setFontSize(15);
-                    } else if(game.mStartScreen){
+                    if(game.mStartScreen){
                         game.mStartScreen = false;
                         game.spawnShape();
-                        game.mLastUpdate = SDL_GetTicks();
+                    } else {
+                        game.resetGame();
+                        mSmallTexture->setFontSize(15);
                     }
                     break;
                 case SDLK_f:
@@ -189,15 +190,15 @@ void App::handleEvents(){
                         SDL_SetWindowFullscreen(mWindow, 0);
                         SDL_SetWindowSize(mWindow, screenWbeforeFS, screenHbeforeFS);
                     } else {
-                        screenWbeforeFS = SCREEN_WIDTH;
-                        screenHbeforeFS = SCREEN_HEIGHT;
+                        screenWbeforeFS = mWindowWidth;
+                        screenHbeforeFS = mWindowHeight;
                         SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
                     }
                     break;
                 case SDLK_n:
                     if(isBackgroundLoaded){
                         mBackgroundIndex++;
-                        if(mBackgroundIndex > 4){
+                        if(mBackgroundIndex > 2){
                             mBackgroundIndex = 0;
                         }
                         if(mBackgroundTexture->loadFromFile(path + backgrounds[mBackgroundIndex])){
@@ -211,7 +212,7 @@ void App::handleEvents(){
                     if(isBackgroundLoaded){
                         mBackgroundIndex--;
                         if(mBackgroundIndex < 0){
-                            mBackgroundIndex = 4;
+                            mBackgroundIndex = 2;
                         }
                         if(mBackgroundTexture->loadFromFile(path + backgrounds[mBackgroundIndex])){
                             isBackgroundLoaded = true;
@@ -267,10 +268,10 @@ void App::render(){
             mTitleTexture->loadFromRenderedText("Tetris", {0xFF, 0xFF, 0xFF, 0xFF});
         }
         
-        mTitleTexture->render((SCREEN_WIDTH - mTitleTexture->getWidth()) / 2, (SCREEN_HEIGHT - mTitleTexture->getHeight()) / 2 - SCREEN_HEIGHT / 8);
+        mTitleTexture->render((mWindowWidth - mTitleTexture->getWidth()) / 2, (mWindowHeight - mTitleTexture->getHeight()) / 2 - mWindowHeight / 8);
 
-        scoreX = (SCREEN_WIDTH - mSmallTexture->getWidth()) / 2;
-        scoreY = (SCREEN_HEIGHT - mSmallTexture->getHeight()) / 2 - SCREEN_HEIGHT / 14;
+        scoreX = (mWindowWidth - mSmallTexture->getWidth()) / 2;
+        scoreY = (mWindowHeight - mSmallTexture->getHeight()) / 2 - mWindowHeight / 14;
     }
 
     std::stringstream scoreText;
@@ -288,7 +289,7 @@ void App::render(){
 }
 
 void App::darkenBackground(){
-    SDL_Surface* back = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0);
+    SDL_Surface* back = SDL_CreateRGBSurface(0, mWindowWidth, mWindowHeight, 32, 0, 0, 0, 0);
     SDL_FillRect(back, NULL, SDL_MapRGB(back->format, 0, 0, 0));
 
     SDL_Texture* backTexture = SDL_CreateTextureFromSurface(mRenderer, back);
@@ -303,17 +304,17 @@ void App::darkenBackground(){
 }
 
 void App::renderBackground(){
-    SDL_Rect stretch = {0, 0, 0, SCREEN_HEIGHT};
+    SDL_Rect stretch = {0, 0, 0, mWindowHeight};
 
-    if(SCREEN_HEIGHT > SCREEN_WIDTH){
-        int visibleImage = (SCREEN_WIDTH * 100) / (SCREEN_HEIGHT * 1.78);
+    if(mWindowHeight > mWindowWidth){
+        int visibleImage = (mWindowWidth * 100) / (mWindowHeight * 1.78);
         int bWidth = mBackgroundTexture->getWidth();
         int cropWidth = (bWidth - bWidth * (visibleImage / 100.0)) / 2.5;
         SDL_Rect crop = {cropWidth, 0, bWidth - cropWidth, mBackgroundTexture->getHeight()};
-        stretch.w = (bWidth - cropWidth) / mBackgroundTexture->getHeight() * SCREEN_HEIGHT;
+        stretch.w = (bWidth - cropWidth) / mBackgroundTexture->getHeight() * mWindowHeight;
         mBackgroundTexture->render(0, 0, &crop, &stretch);
     } else {
-        stretch.w = SCREEN_WIDTH;
+        stretch.w = mWindowWidth;
         mBackgroundTexture->render(0, 0, NULL, &stretch);
     }
 }

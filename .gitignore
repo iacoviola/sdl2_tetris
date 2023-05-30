@@ -3,3 +3,4 @@ obj/
 build/
 .DS_STORE
 val.log
+res/old_backgrounds/

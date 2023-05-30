@@ -50,7 +50,7 @@ ifeq ($(OS),Windows_NT)
 	INCLUDE_PATHS += -IC:\SDL2\SDL2-2.26.5\x86_64-w64-mingw32\include -IC:\SDL2\SDL2_ttf-2.20.2\x86_64-w64-mingw32\include -IC:\SDL2\SDL2_image-2.6.3\x86_64-w64-mingw32\include
 	LIBRARY_PATHS += -LC:\SDL2\SDL2-2.26.5\x86_64-w64-mingw32\lib -LC:\SDL2\SDL2_ttf-2.20.2\x86_64-w64-mingw32\lib -LC:\SDL2\SDL2_image-2.6.3\x86_64-w64-mingw32\lib
 	LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image
-	RESOURCES_PATH = res/icon.res
+	RESOURCES_PATH = res/icon/icon.res
 endif
 
 # Build
