@@ -2,6 +2,7 @@
 #define GAME_HPP
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <vector>
 #include <random>
 
@@ -227,6 +228,8 @@ class Game {
         bool mGameOver = false;
         // If the game is in the start screen
         bool mStartScreen = true;
+        // If the current shape has been placed
+        bool mPlaced = false;
 
         // The index of the current shape in the permutation
         int mShapeIndex = 7;
@@ -246,7 +249,6 @@ class Game {
         float mGravity = 1.0f / 64.0f; //0.015625f;
         // The counter for the gravity, incremented by the gravity value each frame
         float mDropCounter = 0.0f;
-
     friend class App;
 };
 

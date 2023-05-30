@@ -99,7 +99,6 @@ Game::Game(int max_width, int max_height) : mMaxWidth(max_width), mMaxHeight(max
         mShapeBag[i] = i;
     }
 
-
     initPlayfield();
 }
 
@@ -108,6 +107,8 @@ Game::~Game(){
         delete[] mPlayfield[i];
     }
     delete[] mPlayfield;
+
+    delete[] mShapeBag;
 }
 
 void Game::checkCollisions(int hasRotated){
@@ -258,6 +259,7 @@ void Game::addToPlayfield(){
     }
     checkRows();
     checkGameOver();
+    mPlaced = true;
     if(++mShapesPlaced % 10 == 0)
         mGravity *= 1.1f;
     if(!mGameOver)

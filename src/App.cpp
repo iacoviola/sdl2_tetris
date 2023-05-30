@@ -28,9 +28,16 @@ App::~App(){
     mFontSmall = NULL;
     mFontLarge = NULL;
 
+    Mix_FreeChunk(mDropSound);
+    mDropSound = NULL;
+
+    Mix_FreeMusic(mMusic);
+    mMusic = NULL;
+
     IMG_Quit();
     TTF_Quit();
     SDL_Quit();
+    Mix_Quit();
 }
 
 void App::run(){
@@ -40,6 +47,11 @@ void App::run(){
     double delta = 0;
 
     while(!mQuit){
+
+        if(Mix_PlayingMusic() == 0){
+            Mix_PlayMusic(mMusic, -1);
+            Mix_VolumeMusic(128/9);
+        }
 
         a = SDL_GetTicks();
         delta = a - b;
@@ -113,6 +125,20 @@ void App::init(){
     mBackgroundTexture = new LTexture(mRenderer);
     if(mBackgroundTexture->loadFromFile(path + backgrounds[mBackgroundIndex])){
         isBackgroundLoaded = true;
+    }
+
+    if(Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0){
+        throw std::runtime_error(Mix_GetError());
+    }
+
+    mDropSound = Mix_LoadWAV("../../res/sounds/drop.wav");
+    if(mDropSound == NULL){
+        throw std::runtime_error(Mix_GetError());
+    }
+
+    mMusic = Mix_LoadMUS("../../res/sounds/music.mp3");
+    if(mMusic == NULL){
+        throw std::runtime_error(Mix_GetError());
     }
 
     SDL_SetRenderDrawColor(mRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -233,6 +259,11 @@ void App::handleEvents(){
 void App::update(){
     game.updateGravity();
     game.updateMovement();
+    if(game.mPlaced){
+        Mix_PlayChannel(-1, mDropSound, 0);
+        Mix_VolumeChunk(mDropSound, 128/9);
+        game.mPlaced = false;
+    }
 }
 
 void App::render(){

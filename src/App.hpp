@@ -104,6 +104,10 @@ class App {
         LTexture* mBackgroundTexture;
         // The fonts used in the application
         TTF_Font* mFontSmall, *mFontLarge;
+        // Shape drop sound
+        Mix_Chunk* mDropSound;
+        // Background music
+        Mix_Music* mMusic;
 };
 
 #endif // APP_HPP
