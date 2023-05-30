@@ -41,6 +41,7 @@ class Game {
         void shiftDown(int row);
         void checkGameOver();
         void resetGame();
+        void dropPiece();
 
         void generatePermutation();
         int getNextShape();
@@ -63,6 +64,7 @@ class Game {
         block** mPlayfield;
         
         shape mCurrent;
+        shape mGhost;
 
         Uint32 mLastUpdate = 0;
 

@@ -7,6 +7,16 @@
 #include "Game.hpp"
 #include "LTexture.hpp"
 
+static std::string path = "../../res/backgrounds/";
+
+static std::string backgrounds[5] = {
+    "background_beach.jpg",
+    "background_farm.jpg",
+    "background_forest.jpg",
+    "background_mountain.jpg",
+    "background_desert.jpg"
+};
+
 class App {
     public:
         App();
@@ -31,6 +41,8 @@ class App {
 
         SDL_Window* mWindow = NULL;
         SDL_Renderer* mRenderer = NULL;
+
+        int mBackgroundIndex = 0;
 
         Game game;
 

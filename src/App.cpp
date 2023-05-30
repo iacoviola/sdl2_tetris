@@ -78,7 +78,7 @@ void App::init(){
         throw std::runtime_error(SDL_GetError());
     }
 
-    if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG){
+    if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) != (IMG_INIT_PNG | IMG_INIT_JPG)){
         throw std::runtime_error(IMG_GetError());
     }
 
@@ -109,9 +109,9 @@ void App::init(){
     mTitleTexture = new LTexture(mRenderer, mFontLarge);
 
     mBackgroundTexture = new LTexture(mRenderer);
-    /*if(mBackgroundTexture->loadFromFile("../res/background.png")){
+    if(mBackgroundTexture->loadFromFile(path + backgrounds[mBackgroundIndex])){
         isBackgroundLoaded = true;
-    }*/
+    }
 
     SDL_SetRenderDrawColor(mRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 }
@@ -193,6 +193,36 @@ void App::handleEvents(){
                         screenHbeforeFS = SCREEN_HEIGHT;
                         SDL_SetWindowFullscreen(mWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
                     }
+                    break;
+                case SDLK_n:
+                    if(isBackgroundLoaded){
+                        mBackgroundIndex++;
+                        if(mBackgroundIndex > 4){
+                            mBackgroundIndex = 0;
+                        }
+                        if(mBackgroundTexture->loadFromFile(path + backgrounds[mBackgroundIndex])){
+                            isBackgroundLoaded = true;
+                        } else {
+                            isBackgroundLoaded = false;
+                        }
+                    }
+                    break;
+                case SDLK_m:
+                    if(isBackgroundLoaded){
+                        mBackgroundIndex--;
+                        if(mBackgroundIndex < 0){
+                            mBackgroundIndex = 4;
+                        }
+                        if(mBackgroundTexture->loadFromFile(path + backgrounds[mBackgroundIndex])){
+                            isBackgroundLoaded = true;
+                        } else {
+                            isBackgroundLoaded = false;
+                        }
+                    }
+                    break;
+                case SDLK_SPACE:
+                    if(!game.mGameOver && !game.mStartScreen)
+                        game.dropPiece();
                     break;
             }
         }
@@ -284,7 +314,6 @@ void App::renderBackground(){
         mBackgroundTexture->render(0, 0, &crop, &stretch);
     } else {
         stretch.w = SCREEN_WIDTH;
-        stretch.h = SCREEN_WIDTH / 1.78;
         mBackgroundTexture->render(0, 0, NULL, &stretch);
     }
 }

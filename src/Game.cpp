@@ -346,7 +346,7 @@ void Game::drawField(SDL_Renderer* gRenderer){
                 SDL_RenderFillRect(gRenderer, &rect);
                 SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
             } else {
-                SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0x0F);
+                SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0x5F);
                 SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
             }
             
@@ -369,6 +369,11 @@ void Game::drawPiece(SDL_Renderer* gRenderer){
     }
 }
 
+void Game::dropPiece(){
+    mCurrent = mGhost;
+    addToPlayfield();
+}
+
 void Game::spawnShape(){
     mCurrent = gTetrisPieces[getNextShape()];
 
@@ -385,18 +390,18 @@ void Game::reloadShape(int previousSize, int previousX, int previousY){
 }
 
 void Game::drawGhostPiece(SDL_Renderer* renderer){
-    shape ghost = mCurrent;
+    mGhost = mCurrent;
     bool collided = false;
 
     while(!collided){
-        ghost.y += mBlockSize;
-        updateColliders(ghost);
-        collided = checkGhostCollision(ghost);
+        mGhost.y += mBlockSize;
+        updateColliders(mGhost);
+        collided = checkGhostCollision(mGhost);
     }
-    for(int i = 0; i < ghost.size; i++){
-        for(int j = 0; j < ghost.size; j++){
-            if(ghost.data[i][j] == 1){
-                SDL_Rect rect = {ghost.x + j * mBlockSize, ghost.y + i * mBlockSize, mBlockSize, mBlockSize};
+    for(int i = 0; i < mGhost.size; i++){
+        for(int j = 0; j < mGhost.size; j++){
+            if(mGhost.data[i][j] == 1){
+                SDL_Rect rect = {mGhost.x + j * mBlockSize, mGhost.y + i * mBlockSize, mBlockSize, mBlockSize};
                 SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
                 SDL_RenderDrawRect(renderer, &rect);
             }
